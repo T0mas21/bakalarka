@@ -1,0 +1,9 @@
+matplotlib==3.6.2
+numpy==1.25.2
+opencv_python==4.10.0.84
+opencv_python_headless==4.10.0.84
+Pillow==11.2.1
+supervision==0.25.1
+torch==2.5.1+cu124
+torchvision==0.20.1+cu124
+tqdm==4.64.1
