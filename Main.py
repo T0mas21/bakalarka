@@ -13,11 +13,11 @@ from Test.Test_model import ClassTestModel
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ORIGINAL_DATASET = "dataset"
 
-TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_treshold_SE/train/images")
-TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_treshold_SE/train/masks")
-VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_treshold_SE/validate/images")
-VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_treshold_SE/validate/masks")
-VAL_DIR = os.path.join(BASE_DIR, "work_dataset_green_treshold_SE/validate")
+TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/train/images")
+TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/train/masks")
+VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/validate/images")
+VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/validate/masks")
+VAL_DIR = os.path.join(BASE_DIR, "work_dataset/validate")
 
 
 # Parametry pro běh programu
@@ -30,12 +30,6 @@ def get_args():
     # Flag pro předzpracování
     group.add_argument('--preproces', action='store_true', help="Pokud je přepínač zadán, dataset se předzpracuje")
     # Počet augmentací ke každé třídě
-    # parser.add_argument(
-    #     '--class_augment',
-    #     type=json.loads,
-    #     default={},
-    #     help='Třídy a počet augmentací jako JSON dict, např. --class_augment \'{"1": 40, "2": 50}\''
-    # )
     parser.add_argument('--class_augment', type=str, default="{}", help='Třídy a počet augmentací jako JSON dict, např. --class_augment \'{"1": 40, "2": 50}\'')
     parser.add_argument('--treshold_low', default=0, type=int, help='Dolní práh')
     parser.add_argument('--treshold_high', default=255, type=int, help='Horní práh')
