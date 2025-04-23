@@ -98,4 +98,4 @@ python Main.py --run_model --classes_num 2
 ```
 
 ### Natrénované modely
-Ve složce Pretrained_models se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>_<případný threshold>`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy, případný treshold pak slouží k nastavení uživatelského rozhraní.  
+Na google disku [natrénované modely](https://drive.google.com/drive/folders/1qyvVL8UBRe3M037B5ZNVmL69lQMBvRad?usp=sharing), se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>_<případný threshold>`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy, případný treshold pak slouží k nastavení uživatelského rozhraní.
