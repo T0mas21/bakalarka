@@ -10,14 +10,26 @@ from Training.Train import ClassTrain
 from User_interface.View import ClassView
 from Test.Test_model import ClassTestModel
 
+# Konstanty pro velikost vstupů a výstupů
+IMAGE_HEIGHT = 572 
+IMAGE_WIDTH = 572 
+IMAGE_HEIGHT_OUT = 388 
+IMAGE_WIDTH_OUT = 388 
+
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ORIGINAL_DATASET = "dataset"
 
-TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/train/images")
-TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/train/masks")
-VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/validate/images")
-VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/validate/masks")
-VAL_DIR = os.path.join(BASE_DIR, "work_dataset/validate")
+# TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/train/images")
+# TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/train/masks")
+# VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/validate/images")
+# VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/validate/masks")
+
+TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/train/images")
+TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/train/masks")
+VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate/images")
+VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate/masks")
+VAL_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate")
 
 
 # Parametry pro běh programu
@@ -29,7 +41,7 @@ def get_args():
     # První možnost preprocesing datasetu
     # Flag pro předzpracování
     group.add_argument('--preproces', action='store_true', help="Pokud je přepínač zadán, dataset se předzpracuje")
-    # Počet augmentací ke každé třídě
+    
     parser.add_argument('--class_augment', type=str, default="{}", help='Třídy a počet augmentací jako JSON dict, např. --class_augment \'{"1": 40, "2": 50}\'')
     parser.add_argument('--treshold_low', default=0, type=int, help='Dolní práh')
     parser.add_argument('--treshold_high', default=255, type=int, help='Horní práh')
@@ -56,6 +68,8 @@ def get_args():
         help='Váhy tříd jako JSON list, např. --class_weights "[1, 2.5, 2, 4.1, 1]"'
     )
 
+    # Výběr architektury modelu
+    parser.add_argument('--nested_unet', type=bool, default=False, help='Použít architekturu Nested UNet (default False)')
 
     # Třetí možnost
     group.add_argument('--run_model', action='store_true', help="Pokud je přepínač zadán, spustí se GUI.")
@@ -70,6 +84,13 @@ def get_args():
 if __name__ == "__main__":
     try:
         args = get_args()
+        
+        if args.nested_unet == True:
+            IMAGE_HEIGHT = 576
+            IMAGE_WIDTH = 576 
+            IMAGE_HEIGHT_OUT = 576 
+            IMAGE_WIDTH_OUT = 576 
+
         
         if args.train_model:
             required_dirs = [
@@ -89,9 +110,11 @@ if __name__ == "__main__":
             trainer = ClassTrain(
                 # Umístění datasetu
                 train_img_dir=TRAIN_IMG_DIR, train_mask_dir=TRAIN_MASK_DIR, val_img_dir=VAL_IMG_DIR, val_mask_dir=VAL_MASK_DIR,
+                # Velikosti vstupu s výstupu
+                IMAGE_HEIGHT=IMAGE_HEIGHT, IMAGE_WIDTH=IMAGE_WIDTH, IMAGE_HEIGHT_OUT=IMAGE_HEIGHT_OUT, IMAGE_WIDTH_OUT=IMAGE_WIDTH_OUT,
                 # Hyperparametry
                 weights=args.class_weights, model_path=args.model_path, classes_num=args.classes_num, learning_rate=args.learning_rate,
-                batch_size=args.batch_size, num_epoch=args.num_epoch, pin_memory=args.pin_memory, early_stop=args.early_stop)
+                batch_size=args.batch_size, num_epoch=args.num_epoch, pin_memory=args.pin_memory, early_stop=args.early_stop, nested_unet=args.nested_unet)
             trainer.run()
 
         elif args.preproces: 
@@ -101,14 +124,16 @@ if __name__ == "__main__":
             
         elif args.run_model:
             root = tk.Tk()
-            app = ClassView(root, args.classes_num, args.treshold_high, args.treshold_low)
+            app = ClassView(root, IMAGE_HEIGHT, IMAGE_WIDTH, args.classes_num, args.treshold_high, args.treshold_low, args.nested_unet)
             app.start()
 
         elif args.test_model:
             if args.model_path is None:
                 raise ValueError(f"Je potřeba zadat cestu k testovanému modelu.")
             
-            tester = ClassTestModel(VAL_DIR, args.model_path, args.classes_num, args.batch_size, args.pin_memory)
+            tester = ClassTestModel(VAL_DIR, args.model_path, args.classes_num, args.batch_size, args.pin_memory,
+                                    IMAGE_HEIGHT=IMAGE_HEIGHT, IMAGE_WIDTH=IMAGE_WIDTH, IMAGE_HEIGHT_OUT=IMAGE_HEIGHT_OUT, IMAGE_WIDTH_OUT=IMAGE_WIDTH_OUT, 
+                                    nested_unet=args.nested_unet)
             tester.get_stats()
 
     except KeyboardInterrupt:

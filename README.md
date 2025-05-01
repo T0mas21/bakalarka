@@ -1,4 +1,4 @@
-# Program pro lokalizaci příznaků diabetické retinopatie
+# Program pro segmentaci příznaků diabetické retinopatie
 Celkový výsledek se skládá ze scriptu pro předzpracování datové sady, scriptu pro trénování modelu architektury UNet na vlastních datech a program s uživatelským rozhraním, kde je možné nahrát model této architektury a snímek sítnice a program na výstupu ukáže výskyt jednotlivých onemocnění.
 
 ## Použití
@@ -56,12 +56,13 @@ Spuštění programu s argumenty:
 - **--pin_memory**: Použití pin memory u dataloaderu - může urychlit načítání dat.
 - **--early_stop**: Počet epoch, po kterých se při nezlepšení dice skóre modelu trénování ukončí.
 - **--class_weights**: List vah pro jednotlivé třídy.
+- **--nested_unet**: Využití rozšířené architektury UNet.
 
 Například:
 ```bash
 python Main.py --train_model --num_epoch 10 --class_weights "[0.1, 2.5, 4, 6, 3.5]"
 
-python Main.py --train_model --model_path "checkpoint.pth.tar" --classes_num 5 --learning_rate 0.0001 --batch_size 1 --num_epoch 50 --pin_memory True --early_stop 10 --class_weights "[0.05, 2.5, 2.5, 4.0, 2.0]"
+python Main.py --train_model --model_path "checkpoint.pth.tar" --classes_num 5 --learning_rate 0.0001 --batch_size 1 --num_epoch 50 --pin_memory True --early_stop 10 --class_weights "[0.05, 2.5, 2.5, 4.0, 2.0]" --nested_unet True
 ```
 
 ### Testování
@@ -73,11 +74,12 @@ Spuštění programu s argumenty:
 - **--classes_num**: Počet klasifikovatelných tříd.
 - **--batch_size**: Počet vstupních vzorků obrázků, které model při tréniku zpracovává zároveň.
 - **--pin_memory**: Použití pin memory u dataloaderu - může urychlit načítání dat.
+- **--nested_unet**: Využití rozšířené architektury UNet.
 
 ```bash
 python Main.py --test_model --model_path "checkpoint.pth.tar"
 
-python Main.py --test_model --model_path "checkpoint.pth.tar" --classes_num 5 --batch_size 1 --pin_memory True
+python Main.py --test_model --model_path "checkpoint.pth.tar" --classes_num 5 --batch_size 1 --pin_memory True --nested_unet True
 ```
 
 
@@ -89,13 +91,14 @@ Spuštění programu s argumenty:
 - **--classes_num**: Počet klasifikovatelných tříd. Program podle toho upraví výstup modelu.
 - **--treshold_high**: Musí k sobě mít číselnou hodnotu, která značí hranici, kdy se pixely nad touto hodnotou nastaví na 255. Mělo by se nastavit na modely trénované s prahováním.
 - **--treshold_low**: Musí k sobě mít číselnou hodnotu, která značí hranici, kdy se pixely pod touto hodnotou nastaví na 0. Mělo by se nastavit na modely trénované s prahováním.
+- **--nested_unet**: Využití rozšířené architektury UNet.
 
 Například:
 ```bash
 python Main.py --run_model
 
-python Main.py --run_model --classes_num 2
+python Main.py --run_model --classes_num 2 --nested_unet True
 ```
 
 ### Natrénované modely
-Na google disku [natrénované modely](https://drive.google.com/drive/folders/1qyvVL8UBRe3M037B5ZNVmL69lQMBvRad?usp=sharing), se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>_<případný threshold>`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy, případný treshold pak slouží k nastavení uživatelského rozhraní.
+Na google disku [natrénované modely](https://drive.google.com/drive/folders/1qyvVL8UBRe3M037B5ZNVmL69lQMBvRad?usp=sharing), se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>_*.pth.tar`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy.

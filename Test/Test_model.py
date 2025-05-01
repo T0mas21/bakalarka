@@ -8,12 +8,10 @@ import torchvision.transforms as transforms
 
 from Training.Utils import load_checkpoint
 from UNet_architecture.UNet import UNet
+from UNet_architecture.NestedUnet import NestedUNet
 from Training.Dataset import ClassDataset
 
-IMAGE_HEIGHT = 572
-IMAGE_WIDTH = 572
-IMAGE_HEIGHT_OUT = 388 
-IMAGE_WIDTH_OUT = 388 
+
 RESULTS_PATH = "Results.txt"
 
 
@@ -29,16 +27,22 @@ Vstupy:
     Počet klasifikovatelných tříd
     Velikost vzorku batch
     Pin memory flag
+    Příznak pro nastavení architektury
 Výstup:
     Soubor s hodnotami metrik
 '''
 class ClassTestModel():
-    def __init__(self, validation_set_path, model_path, classes_num=5, batch_size=1, pin_memory=True):
+    def __init__(self, validation_set_path, model_path, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT_OUT, IMAGE_WIDTH_OUT,
+                 classes_num=5, batch_size=1, pin_memory=True, nested_unet=False):
         self.validation_set_path = validation_set_path
         self.classes_num = classes_num
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        
+        if nested_unet == True:
+            self.model = NestedUNet(out_channels=classes_num)
+        else:
+            self.model = UNet(out_channels=classes_num)
 
-        self.model = UNet(out_channels=classes_num)
         load_checkpoint(model_path, self.model)
         self.model.to(self.device)
 

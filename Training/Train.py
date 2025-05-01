@@ -8,6 +8,7 @@ matplotlib.use('Agg')  # non-GUI backend
 import numpy as np
 
 from UNet_architecture.UNet import UNet
+from UNet_architecture.NestedUnet import NestedUNet
 from UNet_architecture.UNet import init_weights_he
 from Training.Loss_function import HybridLoss_multiclass
 
@@ -20,11 +21,7 @@ from Training.Utils import(
 )
 
 
-# Konstanty pro velikost vstupů a výstupů
-IMAGE_HEIGHT = 572 
-IMAGE_WIDTH = 572 
-IMAGE_HEIGHT_OUT = 388 
-IMAGE_WIDTH_OUT = 388 
+
 
 
 # Převod obrázku na long tensor
@@ -46,12 +43,13 @@ Vstupy:
     Počet epoch
     Pin memory flag
     Počet epoch, po kterých se při nezlepšení dice skóre trénování zastaví
+    Příznak pro nastavení architektury
 Výstup:
     Natrénovaný model
 '''
 class ClassTrain():
-    def __init__(self, train_img_dir, train_mask_dir, val_img_dir, val_mask_dir,
-                 weights=[], model_path=None, classes_num=5, learning_rate=1e-3, batch_size=1, num_epoch=100, pin_memory=True, early_stop=10):
+    def __init__(self, train_img_dir, train_mask_dir, val_img_dir, val_mask_dir, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_HEIGHT_OUT, IMAGE_WIDTH_OUT,
+                 weights=[], model_path=None, classes_num=5, learning_rate=1e-3, batch_size=1, num_epoch=100, pin_memory=True, early_stop=10, nested_unet=False):
         
         # Nastavení hyperparametrů
         self.train_img_dir = train_img_dir
@@ -87,7 +85,10 @@ class ClassTrain():
         self.epochs_since_improvement = 0
 
         # Model
-        self.model = UNet(out_channels=classes_num)
+        if nested_unet == True:
+            self.model = NestedUNet(out_channels=classes_num)
+        else:
+            self.model = UNet(out_channels=classes_num)
         if model_path is None:
             self.model.apply(init_weights_he)
         self.model = self.model.to(self.device).float()

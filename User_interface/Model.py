@@ -8,13 +8,10 @@ import supervision as sv
 from Preprocessing.Split import ClassSplit
 from Preprocessing.Filter import ClassFilter
 from UNet_architecture.UNet import UNet
-from Training.Utils import load_checkpoint
+from UNet_architecture.NestedUnet import NestedUNet
 from Preprocessing.Treshold import ClassTreshold
+from Training.Utils import load_checkpoint
 
-IMAGE_HEIGHT = 572
-IMAGE_WIDTH = 572
-IMAGE_HEIGHT_OUT = 388 
-IMAGE_WIDTH_OUT = 388 
 
 '''
 Třída pro backend pro uživatelské rozhraní.
@@ -25,7 +22,7 @@ Výstup:
     Predikce pro vstupní obrázek
 '''
 class ClassModel():
-    def __init__(self, treshold_high=255, treshold_low=0):
+    def __init__(self, IMAGE_HEIGHT, IMAGE_WIDTH, treshold_high=255, treshold_low=0, nested_unet=False):
         self.original_image = None
         self.preprocesed_image = None
         self.model = None
@@ -34,6 +31,9 @@ class ClassModel():
         self.prediction_image = None
         self.treshold_high = treshold_high
         self.treshold_low = treshold_low
+        self.IMAGE_HEIGHT = IMAGE_HEIGHT
+        self.IMAGE_WIDTH = IMAGE_WIDTH
+        self.nested_unet = nested_unet
 
     def set_image(self, image_path):
         # Načtení obrázku
@@ -44,18 +44,21 @@ class ClassModel():
         croped_image, _ = ClassSplit.crop(image_path)
         filtered_image = ClassFilter.filter(croped_image)
         if self.treshold_low > 0 or self.treshold_high < 255:
-            filtered_image = ClassTreshold.treshold(image=filtered_image, high=self.treshold_high, low=self.treshold_low)
+            filtered_image = ClassTreshold.treshold(image=filtered_image, high=self.treshold_high, low=self.treshold_low) 
         self.preprocesed_image = Image.fromarray(filtered_image)
-        self.preprocesed_image = self.preprocesed_image.resize((IMAGE_HEIGHT, IMAGE_WIDTH), Image.LANCZOS)
+        self.preprocesed_image = self.preprocesed_image.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
 
         # Původní oříznutý obrázek pro vizualizaci
         croped_image_rgb, _ = ClassSplit.crop(image_path, rgb_flag=True)
         pil_croped = Image.fromarray(croped_image_rgb)
-        self.original_image = pil_croped.resize((IMAGE_HEIGHT, IMAGE_WIDTH), Image.LANCZOS)
+        self.original_image = pil_croped.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
 
     def set_model(self, model_path, classes_num=5):
         # Načtení modelu
-        self.model = UNet(out_channels=classes_num)
+        if self.nested_unet == True:
+            self.model = NestedUNet(out_channels=classes_num)
+        else:
+            self.model = UNet(out_channels=classes_num)
         load_checkpoint(model_path, self.model)
         self.model.to(self.device)
 
@@ -64,7 +67,7 @@ class ClassModel():
         if self.model is not None and self.preprocesed_image is not None:
             # Transformace na tensor
             img_transform = transforms.Compose([
-                transforms.Resize((IMAGE_HEIGHT, IMAGE_WIDTH)),
+                transforms.Resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH)),
                 transforms.ToTensor(),
             ])
             image_tensor = img_transform(self.preprocesed_image).unsqueeze(0).to(self.device)
@@ -84,7 +87,7 @@ class ClassModel():
             }
 
             # Převedení obrázku na numpy (RGB) a přizpůsobení velikost
-            original_np = np.array(self.original_image.resize((IMAGE_WIDTH, IMAGE_HEIGHT))).astype(np.uint8)
+            original_np = np.array(self.original_image.resize((self.IMAGE_WIDTH, self.IMAGE_HEIGHT))).astype(np.uint8)
 
             # Vytvoření RGB masky ve stejné velikosti jako predikovaná maska
             h, w = pred_mask.shape
@@ -93,8 +96,8 @@ class ClassModel():
                 rgb_mask[pred_mask == label] = color
 
             # Resize masky na stejnou velikost jako originál (kvůli kompatibilitě)
-            rgb_mask_resized = cv2.resize(rgb_mask, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
-            pred_mask_resized = cv2.resize(pred_mask, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
+            rgb_mask_resized = cv2.resize(rgb_mask, (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
+            pred_mask_resized = cv2.resize(pred_mask, (self.IMAGE_WIDTH, self.IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
 
             self.prediction = pred_mask_resized
 
@@ -119,7 +122,7 @@ class ClassModel():
             return blended, unique_labels
 
         return None, []
-
+    
     def get_boundingbox(self, margin: int = 5):
         def remove_nested_boxes(xyxy_list, class_ids, confidences):
             keep = []

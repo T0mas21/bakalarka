@@ -10,12 +10,12 @@ from User_interface.Model import ClassModel
 Třída pro frontend pro uživatelské rozhraní.
 '''
 class ClassView():
-    def __init__(self, root, num_classes=5, treshold_high=255, treshold_low=0):
+    def __init__(self, root, IMAGE_HEIGHT, IMAGE_WIDTH, num_classes=5, treshold_high=255, treshold_low=0, nested_unet=False):
         self.root = root
         # Název okna
         self.root.title("Diabetic retinopathy detector")
-        # Backend model (UNet)
-        self.model = ClassModel(treshold_high, treshold_low)
+        # Backend model
+        self.model = ClassModel(IMAGE_HEIGHT, IMAGE_WIDTH, treshold_high, treshold_low, nested_unet)
         # Počet tříd segmentace
         self.num_classes = num_classes
 
