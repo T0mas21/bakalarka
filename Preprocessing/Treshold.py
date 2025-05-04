@@ -1,3 +1,9 @@
+'''
+  Název souboru: Treshold.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Vyprahování obrázku
+'''
 
 '''
 Třída pro vyprahování obrázku. Vše nad horní hranici nastaví na 255 a vše pod spodní hranici nastaví na 0.

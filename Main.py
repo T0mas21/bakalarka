@@ -1,3 +1,10 @@
+'''
+  Název souboru: Main.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Načtení a zpracování argumentů a sputění programu
+'''
+
 import torch.multiprocessing as mp
 import tkinter as tk
 import argparse
@@ -10,26 +17,17 @@ from Training.Train import ClassTrain
 from User_interface.View import ClassView
 from Test.Test_model import ClassTestModel
 
-# Konstanty pro velikost vstupů a výstupů
-IMAGE_HEIGHT = 572 
-IMAGE_WIDTH = 572 
-IMAGE_HEIGHT_OUT = 388 
-IMAGE_WIDTH_OUT = 388 
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ORIGINAL_DATASET = "dataset"
 
-# TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/train/images")
-# TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/train/masks")
-# VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/validate/images")
-# VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/validate/masks")
-
-TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/train/images")
-TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/train/masks")
-VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate/images")
-VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate/masks")
-VAL_DIR = os.path.join(BASE_DIR, "work_dataset_green_ALL/validate")
+# Cesty k datasetům
+TRAIN_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/train/images")
+TRAIN_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/train/masks")
+VAL_IMG_DIR = os.path.join(BASE_DIR, "work_dataset/validate/images")
+VAL_MASK_DIR = os.path.join(BASE_DIR, "work_dataset/validate/masks")
+VAL_DIR = os.path.join(BASE_DIR, "work_dataset/validate")
 
 
 # Parametry pro běh programu
@@ -41,7 +39,7 @@ def get_args():
     # První možnost preprocesing datasetu
     # Flag pro předzpracování
     group.add_argument('--preproces', action='store_true', help="Pokud je přepínač zadán, dataset se předzpracuje")
-    
+    # Počet augmentací ke každé třídě
     parser.add_argument('--class_augment', type=str, default="{}", help='Třídy a počet augmentací jako JSON dict, např. --class_augment \'{"1": 40, "2": 50}\'')
     parser.add_argument('--treshold_low', default=0, type=int, help='Dolní práh')
     parser.add_argument('--treshold_high', default=255, type=int, help='Horní práh')
@@ -85,6 +83,11 @@ if __name__ == "__main__":
     try:
         args = get_args()
         
+        # Konstanty pro velikost vstupů a výstupů
+        IMAGE_HEIGHT = 572 
+        IMAGE_WIDTH = 572 
+        IMAGE_HEIGHT_OUT = 388 
+        IMAGE_WIDTH_OUT = 388 
         if args.nested_unet == True:
             IMAGE_HEIGHT = 576
             IMAGE_WIDTH = 576 
@@ -92,6 +95,7 @@ if __name__ == "__main__":
             IMAGE_WIDTH_OUT = 576 
 
         
+        # Trénování
         if args.train_model:
             required_dirs = [
                 TRAIN_IMG_DIR,
@@ -117,16 +121,19 @@ if __name__ == "__main__":
                 batch_size=args.batch_size, num_epoch=args.num_epoch, pin_memory=args.pin_memory, early_stop=args.early_stop, nested_unet=args.nested_unet)
             trainer.run()
 
+        # Předzpracování datasetu
         elif args.preproces: 
             args.class_augment = ast.literal_eval(args.class_augment)
             args.class_augment = {int(k): v for k, v in args.class_augment.items()}
             ClassPreprocesing.preprocess_dataset(ORIGINAL_DATASET, args.class_augment, args.treshold_high, args.treshold_low, args.split)
-            
+        
+        # Uživatelské rozhraní
         elif args.run_model:
             root = tk.Tk()
             app = ClassView(root, IMAGE_HEIGHT, IMAGE_WIDTH, args.classes_num, args.treshold_high, args.treshold_low, args.nested_unet)
             app.start()
 
+        # Výpočet metrik
         elif args.test_model:
             if args.model_path is None:
                 raise ValueError(f"Je potřeba zadat cestu k testovanému modelu.")
@@ -137,7 +144,7 @@ if __name__ == "__main__":
             tester.get_stats()
 
     except KeyboardInterrupt:
-        print("Training interrupted by user (Ctrl+C)")
+        print("Interrupted by user (Ctrl+C)")
     finally:
         for p in mp.active_children():
             p.terminate()

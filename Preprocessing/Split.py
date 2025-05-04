@@ -1,3 +1,10 @@
+'''
+  Název souboru: Split.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Ořezání pozadí a rozdělení obrázků na více částí
+'''
+
 import cv2 as cv
 
 '''

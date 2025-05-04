@@ -1,3 +1,10 @@
+'''
+  Název souboru: Preproces.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Předzpracování datové sady 
+'''
+
 import cv2 as cv
 import os
 import glob

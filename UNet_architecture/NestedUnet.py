@@ -1,3 +1,10 @@
+'''
+  Název souboru: NestedUnet.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Funkcionalita pro architekturu Nested UNet
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.init as init

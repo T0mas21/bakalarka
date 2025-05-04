@@ -1,3 +1,10 @@
+'''
+  Název souboru: UNet.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Funkcionalita pro architekturu klasického UNet
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.init as init

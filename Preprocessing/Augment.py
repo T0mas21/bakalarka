@@ -1,3 +1,10 @@
+'''
+  Název souboru: Augment.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Umělé rozšíření datové sady
+'''
+
 import os
 import numpy as np
 import random

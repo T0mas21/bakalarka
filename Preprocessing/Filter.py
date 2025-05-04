@@ -1,3 +1,10 @@
+'''
+  Název souboru: Filter.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Úprava obrázků pomocí filtrů
+'''
+
 import cv2 as cv
 import numpy as np
 

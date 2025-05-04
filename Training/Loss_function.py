@@ -1,3 +1,10 @@
+'''
+  Název souboru: Loss_function.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Implementace ztrátové funcke pro trénování modelu
+'''
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

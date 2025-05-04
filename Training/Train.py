@@ -1,3 +1,10 @@
+'''
+  Název souboru: Train.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Implementace procesu trénování
+'''
+
 import torch
 from tqdm import tqdm
 import torch.optim as optim

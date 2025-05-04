@@ -1,3 +1,10 @@
+'''
+  Název souboru: View.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Fronted pro zobrazení predikce modelu na nahraném obrázku
+'''
+
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk

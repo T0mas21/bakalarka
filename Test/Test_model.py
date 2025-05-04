@@ -1,3 +1,10 @@
+'''
+  Název souboru: Test_model.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Testování modelu pomocí výpočtu metrik
+'''
+
 import os
 import glob
 import torch

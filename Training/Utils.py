@@ -1,3 +1,10 @@
+'''
+  Název souboru: Utils.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Pomocné funkce
+'''
+
 import torch
 from Training.Dataset import ClassDataset
 from torch.utils.data import DataLoader
@@ -8,12 +15,27 @@ import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
 
+'''
+Funkce pro uložení modelu
+Vstupy:
+    Stav (použité - stav modelu, stav optimalizátoru, nejlepší dice skóre)
+    Název souboru
+'''
 def save_checkpoint(state, filename="checkpoint.pth.tar"):
     # Uložení aktuálního stavu modelu a optimalizátoru
     print("Saving checkpoint")
     torch.save(state, filename)
 
-
+'''
+Funkce pro načtení modelu
+Vstupy:
+    Cesta k souboru
+    Kostra architektury
+Výstupy:
+    Načtený stav modelu
+    Načtený stav optimalizátoru
+    Nejlepší dosažené dice skóre 
+'''
 def load_checkpoint(path, model, optimizer=None):
     # Načtení stavu modelu a optimalizátoru
     print("Loading checkpoint...")
@@ -28,7 +50,21 @@ def load_checkpoint(path, model, optimizer=None):
     return best_dice_score
 
 
-
+'''
+Funkce pro vytvoření loaderů pro datové sady
+Vstupy:
+    Cesta k adresáři trénovacích snímků
+    Cesta k adresáři anotací trénovacích snímků
+    Cesta k adresáři validačních snímků
+    Cesta k adresáři anotací validačních snímků
+    Velikost vzorku batch
+    Transformace snímku
+    Transformace anotace
+    Pin memory flag
+Výstupy:
+    Loader pro trénovací sadu
+    Loader pro validační sadu
+'''
 def get_loaders(train_dir, train_maskdir, val_dir, val_maskdir, batch_size, img_transform, gt_transform, pin_memory=True):
     # Trénovacího dataset
     train_ds = ClassDataset(
@@ -63,6 +99,18 @@ def get_loaders(train_dir, train_maskdir, val_dir, val_maskdir, batch_size, img_
     return train_loader, val_loader
 
 
+'''
+Funkce pro výpočet metrik modelu
+Vstupy:
+    Datový loader pro validační sadu
+    Model k evaluaci
+    Ztrátová funkce
+    Zařízení (GPU nebo CPU)
+    Počet tříd, které model predikuje
+Výstupy:
+    Dice skóre
+    Hodnota ztrátové funkce na validační sadě
+'''
 def evaluate_multiclass_dice(loader, model, loss_fn, device="cuda", num_classes=5):
     # Ignorovat pozadí
     ignore_index=0
@@ -115,7 +163,14 @@ def evaluate_multiclass_dice(loader, model, loss_fn, device="cuda", num_classes=
     return mean_per_class, epoch_loss
 
 
-
+'''
+Funkce pro uložení grafů vypočítaných metrik
+Vstupy:
+    Cesta k výstupnímu adresáři
+    Souhrn předešlých a aktuálního dice skóre
+    Souhrn předešlých a aktuální hodnoty ztrátové funkce na trénovací sadě
+    Souhrn předešlých a aktuální hodnoty ztrátové funkce na validační sadě
+'''
 def save_dice_metrics(output_dir, all_epoch_dice_mean, total_loss, total_val_loss):
     os.makedirs(f"{output_dir}/graphs", exist_ok=True)
 

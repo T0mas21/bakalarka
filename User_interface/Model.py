@@ -1,3 +1,10 @@
+'''
+  Název souboru: Model.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Backend pro predikci modelu a zpracování obrázku
+'''
+
 import torch
 import cv2
 from PIL import Image
@@ -124,6 +131,7 @@ class ClassModel():
         return None, []
     
     def get_boundingbox(self, margin: int = 5):
+        # Odstranění překrývajících se boxů
         def remove_nested_boxes(xyxy_list, class_ids, confidences):
             keep = []
             for i, (x1a, y1a, x2a, y2a) in enumerate(xyxy_list):
@@ -131,7 +139,7 @@ class ClassModel():
                 for j, (x1b, y1b, x2b, y2b) in enumerate(xyxy_list):
                     if i == j:
                         continue
-                    # kontrolujeme pouze boxy stejné třídy
+                    # Pouze stejné třídy
                     if class_ids[i] != class_ids[j]:
                         continue
                     if x1a >= x1b and y1a >= y1b and x2a <= x2b and y2a <= y2b:

@@ -1,3 +1,10 @@
+'''
+  Název souboru: Dataset.py
+  Autor: Tomáš Janečka
+  Datum: 2025-05-04
+  Popis: Načítání z datové sady
+'''
+
 import os
 import torch
 from PIL import Image
