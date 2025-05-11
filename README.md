@@ -62,7 +62,7 @@ Například:
 ```bash
 python Main.py --train_model --num_epoch 10 --class_weights "[0.1, 2.5, 4, 6, 3.5]"
 
-python Main.py --train_model --model_path "checkpoint.pth.tar" --classes_num 5 --learning_rate 0.0001 --batch_size 1 --num_epoch 50 --pin_memory True --early_stop 10 --class_weights "[0.05, 2.5, 2.5, 4.0, 2.0]" --nested_unet True
+python Main.py --train_model --model_path "checkpoint.pth.tar" --classes_num 5 --learning_rate 0.0001 --batch_size 1 --num_epoch 50 --pin_memory True --early_stop 10 --class_weights "[0.1, 2.0, 3.0, 4.0, 2.0]" --nested_unet True
 ```
 
 ### Testování
@@ -101,4 +101,4 @@ python Main.py --run_model --classes_num 2 --nested_unet True
 ```
 
 ### Natrénované modely
-Na google disku [natrénované modely](https://drive.google.com/drive/folders/1qyvVL8UBRe3M037B5ZNVmL69lQMBvRad?usp=sharing), se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>*.pth.tar`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy.
+Ve složce `Pretrained_models` nebo na google disku [natrénované modely](https://drive.google.com/drive/folders/1qyvVL8UBRe3M037B5ZNVmL69lQMBvRad?usp=sharing), se nacházejí předtrénované modely pro segmentaci onemocnění diabetické retinopatie. Soubory jsou pojmenované jako `<architektura>_<třída>*.pth.tar`, kde architektura je v tomto případě UNet, třídy můžou být EX - tvrdé exsudáty, SE - měkké exsudáty, MA - mikroaneurysmata, HE - hemoragie nebo ALL - všechny předchozí třídy.

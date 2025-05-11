@@ -189,10 +189,12 @@ class ClassView():
     def load_image(self):
         file_path = filedialog.askopenfilename(filetypes=[("Images", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")])
         if file_path:
-            self.model.set_image(file_path)
-            self.original_image = Image.open(file_path)
-            self.update_image(self.original_image, self.original_label)
-            #self.log(f"✅ Obrázek '{os.path.basename(file_path)}' úspěšně načten.")
+            ok_flag = self.model.set_image(file_path)
+            if ok_flag == True:
+                self.original_image = Image.open(file_path)
+                self.update_image(self.original_image, self.original_label)
+            else:
+                self.log("❌ Chyba: Obrázek nebyl správně načten.")
 
     # Spuštění predikce
     def run_model(self):

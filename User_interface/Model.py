@@ -43,22 +43,27 @@ class ClassModel():
         self.nested_unet = nested_unet
 
     def set_image(self, image_path):
-        # Načtení obrázku
-        self.original_image = image_path
-        self.original_image = Image.open(image_path)
+        try:
+            # Načtení obrázku
+            self.original_image = image_path
+            self.original_image = Image.open(image_path)
 
-        # Předzpraconání obrázku
-        croped_image, _ = ClassSplit.crop(image_path)
-        filtered_image = ClassFilter.filter(croped_image)
-        if self.treshold_low > 0 or self.treshold_high < 255:
-            filtered_image = ClassTreshold.treshold(image=filtered_image, high=self.treshold_high, low=self.treshold_low) 
-        self.preprocesed_image = Image.fromarray(filtered_image)
-        self.preprocesed_image = self.preprocesed_image.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
+            # Předzpraconání obrázku
+            croped_image, _ = ClassSplit.crop(image_path)
+            filtered_image = ClassFilter.filter(croped_image)
+            if self.treshold_low > 0 or self.treshold_high < 255:
+                filtered_image = ClassTreshold.treshold(image=filtered_image, high=self.treshold_high, low=self.treshold_low) 
+            self.preprocesed_image = Image.fromarray(filtered_image)
+            self.preprocesed_image = self.preprocesed_image.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
 
-        # Původní oříznutý obrázek pro vizualizaci
-        croped_image_rgb, _ = ClassSplit.crop(image_path, rgb_flag=True)
-        pil_croped = Image.fromarray(croped_image_rgb)
-        self.original_image = pil_croped.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
+            # Původní oříznutý obrázek pro vizualizaci
+            croped_image_rgb, _ = ClassSplit.crop(image_path, rgb_flag=True)
+            pil_croped = Image.fromarray(croped_image_rgb)
+            self.original_image = pil_croped.resize((self.IMAGE_HEIGHT, self.IMAGE_WIDTH), Image.LANCZOS)
+            return True
+        except Exception as e:
+            print(f"Chyba při načítání obrázku: {e}")
+            return False
 
     def set_model(self, model_path, classes_num=5):
         # Načtení modelu

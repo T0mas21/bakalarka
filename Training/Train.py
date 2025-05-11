@@ -164,7 +164,13 @@ class ClassTrain():
 
             # Forward
             with torch.amp.autocast(device_type="cuda"):
-                predictions = self.model(data)
+                # Pro případ poškozeného obrázku
+                try:
+                    predictions = self.model(data)
+                except RuntimeError as e:
+                    print(f"\nChyba v modelu: {e}")
+                    predictions = None
+                    continue
 
             predictions = predictions.float()
             loss = self.loss_fn(predictions, targets)

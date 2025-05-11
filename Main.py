@@ -38,42 +38,37 @@ def get_args():
 
     # První možnost preprocesing datasetu
     # Flag pro předzpracování
-    group.add_argument('--preproces', action='store_true', help="Pokud je přepínač zadán, dataset se předzpracuje")
+    group.add_argument('--preproces', action='store_true', help="Pokud je přepínač zadán, dataset se předzpracuje (povinný, přepínač)")
     # Počet augmentací ke každé třídě
-    parser.add_argument('--class_augment', type=str, default="{}", help='Třídy a počet augmentací jako JSON dict, např. --class_augment \'{"1": 40, "2": 50}\'')
-    parser.add_argument('--treshold_low', default=0, type=int, help='Dolní práh')
-    parser.add_argument('--treshold_high', default=255, type=int, help='Horní práh')
-    parser.add_argument('--split', default=False, type=bool, help='Rozdělení obrázků na více částí')
+    parser.add_argument('--class_augment', type=str, default="{}", help='Třídy a počet augmentací, např. --class_augment \'{"1": 40, "2": 50}\' (volitelný, str, default {})')
+    parser.add_argument('--treshold_low', default=0, type=int, help='Dolní práh (volitelný, int, default 0)')
+    parser.add_argument('--treshold_high', default=255, type=int, help='Horní práh (volitelný, int, default 255)')
+    parser.add_argument('--split', default=False, type=bool, help='Rozdělení obrázků na více částí (volitelný, bool, default False)')
 
     # Druhá možnost trénovnání
     # Flag pro trénování
-    group.add_argument('--train_model', action='store_true', help="Pokud je přepínač zadán, spustí se trénování modelu.")
+    group.add_argument('--train_model', action='store_true', help="Pokud je přepínač zadán, spustí se trénování modelu (povinný, přepínač)")
 
     # Hyperparametry
-    parser.add_argument('--model_path', type=str, default=None, help='Cesta k předtrénovanému modelu (volitelné)')
-    parser.add_argument('--classes_num', type=int, default=5, help='Počet tříd pro segmentaci (volitelné deafult 5)')
-    parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate (volitelné deafult 1e-4)')
-    parser.add_argument('--batch_size', type=int, default=1, help='Batch size (volitelné deafult 1)')
-    parser.add_argument('--num_epoch', type=int, default=100, help='Počet epoch (volitelné deafult 100)')
-    parser.add_argument('--pin_memory', type=bool, default=True, help='Použít pin_memory u DataLoaderu (volitelné deafult True)')
-    parser.add_argument('--early_stop', type=int, default=10, help='Při nezlepšení dicescore po daném počtu epoch ukončí trénování (volitelné deafult 10)')
+    parser.add_argument('--model_path', type=str, default=None, help='Cesta k předtrénovanému modelu (volitelný, str, default None)')
+    parser.add_argument('--classes_num', type=int, default=5, help='Počet tříd pro segmentaci (volitelný, int, default 5)')
+    parser.add_argument('--learning_rate', type=float, default=1e-4, help='Learning rate (volitelný, float, default 1e-4)')
+    parser.add_argument('--batch_size', type=int, default=1, help='Batch size (volitelný, int, default 1)')
+    parser.add_argument('--num_epoch', type=int, default=100, help='Počet epoch (volitelný, int, default 100)')
+    parser.add_argument('--pin_memory', type=bool, default=True, help='Použít pin_memory u DataLoaderu (volitelný, bool, default True)')
+    parser.add_argument('--early_stop', type=int, default=10, help='Při nezlepšení dicescore po daném počtu epoch ukončí trénování (volitelný, int, default 10)')
 
     # Váhy pro třídy
-    parser.add_argument(
-        '--class_weights',
-        type=json.loads,
-        default=[],
-        help='Váhy tříd jako JSON list, např. --class_weights "[1, 2.5, 2, 4.1, 1]"'
-    )
+    parser.add_argument('--class_weights', type=json.loads, default=[], help='Váhy tříd jako JSON list, např. --class_weights "[1, 2.5, 2, 4.1, 1]" (volitelný, json.loads, default [])')
 
     # Výběr architektury modelu
-    parser.add_argument('--nested_unet', type=bool, default=False, help='Použít architekturu Nested UNet (default False)')
+    parser.add_argument('--nested_unet', type=bool, default=False, help='Použít architekturu Nested UNet (volitelný, bool, default False)')
 
     # Třetí možnost
-    group.add_argument('--run_model', action='store_true', help="Pokud je přepínač zadán, spustí se GUI.")
+    group.add_argument('--run_model', action='store_true', help="Pokud je přepínač zadán, spustí se GUI (povinný, přepínač)")
 
     # Čtvrtá možnost
-    group.add_argument('--test_model', action='store_true', help="Pokud je přepínač zadán, spustí se testování metrik na validačním datasetu.")
+    group.add_argument('--test_model', action='store_true', help="Pokud je přepínač zadán, spustí se testování metrik na validačním datasetu (povinný, přepínač)")
 
     return parser.parse_args()
 
@@ -138,7 +133,7 @@ if __name__ == "__main__":
             if args.model_path is None:
                 raise ValueError(f"Je potřeba zadat cestu k testovanému modelu.")
             
-            tester = ClassTestModel(VAL_DIR, args.model_path, args.classes_num, args.batch_size, args.pin_memory,
+            tester = ClassTestModel(VAL_DIR, model_path=args.model_path, classes_num=args.classes_num, batch_size=args.batch_size, pin_memory=args.pin_memory,
                                     IMAGE_HEIGHT=IMAGE_HEIGHT, IMAGE_WIDTH=IMAGE_WIDTH, IMAGE_HEIGHT_OUT=IMAGE_HEIGHT_OUT, IMAGE_WIDTH_OUT=IMAGE_WIDTH_OUT, 
                                     nested_unet=args.nested_unet)
             tester.get_stats()
